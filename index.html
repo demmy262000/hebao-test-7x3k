@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="zh-Hant"><head><meta charset="UTF-8"><meta name="robots" content="noindex,nofollow">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
+<title>荷包保衛大作戰｜健康力 Dr. Advice</title>
+<meta name="description" content="優惠馬、紅利雞、折價犬全員來襲！帶荷包君閃過 6 隻購物魔物，看看你會被誰榨乾？">
+<!-- TODO(IT)：上線後把下面兩個網址換成實際遊戲網址；og:image 必須是完整絕對網址 -->
+<meta property="og:type" content="website">
+<meta property="og:title" content="荷包保衛大作戰">
+<meta property="og:description" content="優惠馬、紅利雞、折價犬全員來襲！帶荷包君閃過 6 隻購物魔物，看看你會被誰榨乾？">
+<meta property="og:url" content="https://demmy262000.github.io/hebao-test-7x3k/">
+<meta property="og:image" content="https://demmy262000.github.io/hebao-test-7x3k/assets/og.jpg">
+<meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">
+<!-- TODO(IT)：GTM 容器碼貼在這裡（遊戲會自動把事件推到 dataLayer） -->
+<style>
+@font-face{font-family:CardFont;src:url(assets/card-font.woff) format('woff');font-weight:900;font-display:block}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;-webkit-user-select:none;user-select:none}
+html,body{margin:0;height:100%;overflow:hidden;background:#0b0217;color:#fff;font-family:-apple-system,BlinkMacSystemFont,"PingFang TC","Noto Sans TC","Microsoft JhengHei",sans-serif}
+body{height:100vh;height:100dvh;display:flex;justify-content:center}
+#app{position:relative;width:100%;max-width:448px;height:100%;overflow:hidden;touch-action:none;background:#000}
+canvas{display:block;width:100%;height:100%}
+.ov{position:absolute;inset:0;display:none;flex-direction:column;align-items:center;justify-content:center;padding:16px;text-align:center}
+.ov.on{display:flex}
+.btn{border:0;border-radius:16px;color:#fff;font-weight:900;font-family:inherit;cursor:pointer;padding:14px 18px;font-size:16px;text-decoration:none;display:flex;align-items:center;justify-content:center}
+.btn:active{transform:scale(.96)}.btn[disabled]{opacity:.6}
+.pri{background:linear-gradient(90deg,#fbbf24,#ec4899,#7c3aed);border:2px solid rgba(255,255,255,.5);box-shadow:0 8px 24px rgba(236,72,153,.4)}
+#hud{position:absolute;top:0;left:0;right:0;padding:calc(env(safe-area-inset-top,0px) + 12px) 14px 0;display:none;justify-content:space-between;align-items:center;pointer-events:none;z-index:5}
+#hud.on{display:flex}
+#hud .c{text-align:center}#hud small{display:block;font-size:11px;color:#e9d5ff}
+#hud b{font:900 18px monospace}
+.ib{pointer-events:auto;width:36px;height:36px;border-radius:50%;border:1px solid rgba(192,132,252,.5);background:rgba(76,29,149,.8);color:#fff;font-size:16px;margin-left:8px}
+#start{z-index:10;justify-content:flex-end;background:#1a0836}
+#start>img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+#start>div{position:relative;width:100%;display:flex;flex-direction:column;align-items:center;gap:10px;padding-bottom:calc(env(safe-area-inset-bottom,0px) + 8px)}
+.tip{background:rgba(0,0,0,.72);border:1px solid rgba(192,132,252,.5);padding:7px 16px;border-radius:99px;font-size:13px;color:#e9d5ff}
+#start .btn{width:80%;max-width:300px;font-size:20px;padding:16px}
+#iab{font-size:12px;color:#fde68a;background:rgba(0,0,0,.6);padding:4px 10px;border-radius:8px;display:none}
+.lk{font-size:12px;color:#ddd;text-decoration:underline}
+#pause{z-index:20;background:rgba(0,0,0,.8)}#over{z-index:30;background:rgba(0,0,0,.88);overflow-y:auto}
+#over h2{margin:0 0 8px;font-size:20px;color:#fda4af}
+#cardImg{width:100%;max-width:300px;height:auto;border-radius:12px;border:2px solid rgba(168,85,247,.45);-webkit-user-select:auto;user-select:auto;-webkit-touch-callout:default}
+.row{display:flex;gap:8px;width:100%;max-width:340px;margin-top:8px}.row .btn{flex:1;font-size:14px;padding:12px 6px}
+#cta{width:100%;max-width:340px;margin-top:8px;font-size:16px;background:linear-gradient(90deg,#f43f5e,#f59e0b)}
+#share{width:100%;max-width:340px;margin-top:10px;font-size:18px;background:linear-gradient(90deg,#2563eb,#06b6d4)}
+.sec{background:rgba(255,255,255,.14)}
+#toast{position:absolute;left:50%;bottom:90px;transform:translateX(-50%);background:rgba(0,0,0,.85);padding:10px 16px;border-radius:10px;font-size:13px;z-index:50;display:none;max-width:86%;text-align:center}
+#rot{display:none;position:fixed;inset:0;z-index:99;background:#0b0217;align-items:center;justify-content:center;font-size:18px}
+@media (orientation:landscape) and (max-height:520px){#rot{display:flex}}
+</style></head>
+<body>
+<div id="app">
+<canvas id="cv"></canvas>
+<div id="hud"><div id="hearts" style="font-size:22px"></div><div class="c"><small>存活時間</small><b id="tm" style="color:#fcd34d">00:00</b></div>
+<div style="display:flex;align-items:center"><div style="text-align:right"><small>累積得分</small><b id="sc">0</b></div><button class="ib" id="bAud" aria-label="音效"></button><button class="ib" id="bPause" aria-label="暫停"></button></div></div>
+<div id="start" class="ov on"><img src="assets/cover.jpg" alt="">
+<div><div id="iab">右上角選單 → 用瀏覽器開啟，體驗更順</div><div class="tip">左右滑動螢幕，或按鍵盤方向鍵閃避</div>
+<button id="bStart" class="btn pri" disabled>載入中…</button><a class="lk" id="terms" href="https://www.dradvice.com/terms" target="_blank" rel="noopener">活動辦法與條款</a></div></div>
+<div id="pause" class="ov"><h2 style="color:#d8b4fe">遊戲暫停中</h2><p style="color:#ccc;font-size:14px">荷包君正在路邊喘口氣⋯⋯</p><button id="bResume" class="btn pri" style="padding:12px 34px">繼續奔跑</button></div>
+<div id="over" class="ov"><h2>荷包君陣亡結算</h2><img id="cardImg" alt="戰績圖（長按可儲存）">
+<button id="share" class="btn">分享給朋友，看誰撐得久</button>
+<a id="cta" class="btn" target="_blank" rel="noopener">與其被榨乾，不如把優惠榨回來！</a>
+<div class="row"><button id="bSave" class="btn sec">儲存圖片</button><button id="bAgain" class="btn sec">再玩一次</button></div></div>
+<div id="toast"></div></div>
+<div id="rot">請將手機轉為直向遊玩</div>
+<audio id="bgm" src="assets/bgm.mp3" loop preload="auto"></audio><audio id="hurt" src="assets/hurt.mp3" preload="auto"></audio>
+<script>
+(function(){'use strict';
+var GAME_URL='https://demmy262000.github.io/hebao-test-7x3k/'; // TODO(IT)：遊戲上線網址（分享用）
+var MALL='https://dradvice.cc/KP6ok',CTA='與其被榨乾，不如把優惠榨回來！',FF='"PingFang TC","Noto Sans TC","Microsoft JhengHei",sans-serif';
+var $=function(i){return document.getElementById(i)};
+// ---- 追蹤：推送到 dataLayer（GTM / GA4 通用），事件清單見交付說明 ----
+function track(n,p){try{var o={event:n,game_name:'wallet_double12'};for(var k in p)o[k]=p[k];(window.dataLayer=window.dataLayer||[]).push(o)}catch(e){}}
+var store={get:function(k){try{return localStorage.getItem(k)}catch(e){return null}},set:function(k,v){try{localStorage.setItem(k,v)}catch(e){}}};
+var ICON={snd:'<svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="#fff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M2 7h3l4-3.5v11L5 11H2z" fill="#fff"/><path d="M12 6.5a3.5 3.5 0 0 1 0 5M14 4.5a6.3 6.3 0 0 1 0 9"/></svg>',mute:'<svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="#fff" stroke-width="1.6" stroke-linecap="round"><path d="M2 7h3l4-3.5v11L5 11H2z" fill="#fff"/><path d="M12 6.5l4 5M16 6.5l-4 5"/></svg>',pause:'<svg width="16" height="16" viewBox="0 0 16 16"><rect x="3" y="2" width="3.6" height="12" rx="1" fill="#fff"/><rect x="9.4" y="2" width="3.6" height="12" rx="1" fill="#fff"/></svg>',heart:'<svg width="22" height="20" viewBox="0 0 24 22"><path d="M12 21C5 15 1 11.5 1 7a5.5 5.5 0 0 1 11-1 5.5 5.5 0 0 1 11 1c0 4.5-4 8-11 14z" fill="#ff4d8d"/></svg>'};
+var AN=[
+{k:'horse',n:'優惠馬',t:'優惠碼信徒',c:'#8b5cf6',q:['優惠碼都給我了，不用也太可惜了吧！','我只是想試試優惠碼，怎麼就結帳了？','這不是衝動，是優惠碼給我的勇氣！']},
+{k:'chicken',n:'紅利雞',t:'點數畢業導師',c:'#ec4899',q:['紅利快到期了，我只是去救它！','點數是我辛苦累積的，當然要讓它好好畢業！','我只是來花紅利，順便買一點而已！']},
+{k:'raccoon',n:'滿額狸',t:'湊單大師',c:'#06b6d4',q:['送這個贈品很划算欸，我是買到賺到好嗎！','都快到門檻了，總不能讓前面的努力白費吧！','我連贈品要放哪都想好了，這叫有規劃的購物！']},
+{k:'dog',n:'折價犬',t:'折價券收藏家',c:'#3b82f6',q:['原本沒想買，可是折價券真的折太多了...','我連折價券都領好了，總要給它一個表現機會！','不是我要買，是折價券不想被浪費！']},
+{k:'bee',n:'失心蜂',t:'購物車清空王',c:'#eab308',q:['我沒有亂買，購物車的每一件我都很喜歡！','今天上班那麼辛苦，犒賞自己不過分吧！','每一件都是心頭好，我只是捨不得讓誰落單！']},
+{k:'fish',n:'購物魚',t:'未來囤貨預言家',c:'#10b981',q:['先買起來放，未來的我會感謝我！','這不是囤貨，是幫未來的自己提前準備！','現在還沒用到，不代表以後不需要啊！']}];
+function tier(s){return s<20?['荷包秒殺','還沒熱身，荷包就空了']:s<40?['勉強撐住','理智還在線，只是有點喘']:s<80?['理性守門員','這麼多折扣，你居然還沒淪陷']:['荷包鐵衛','雙12最強自制力']}
+// ---- 素材（先試 webp，失敗退回 png）----
+var F={horse:'horse',chicken:'chicken',raccoon:'raccoon',dog:'dog',bee:'bee',fish:'fish',run:'wallet_run',left:'wallet_left',right:'wallet_right',hurt:'wallet_hurt',down:'wallet_down',logo:'logo.png',bg:'bg.jpg',cover:'cover.jpg',cardbg:'card_bg.jpg',ground:'ground.jpg'};
+var IM={},ready=false;
+function loadAll(done){var ks=Object.keys(F),n=0;function fin(){if(++n===ks.length)done()}
+ks.forEach(function(k){var f=F[k],i=new Image(),png=!/\./.test(f);i.onload=function(){IM[k]=i;fin()};
+i.onerror=function(){if(png&&i.src.indexOf('.webp')>-1){i.src='assets/'+f+'.png'}else fin()};i.src='assets/'+f+(png?'.webp':'')})}
+// ---- 狀態 ----
+var app=$('app'),cv=$('cv'),cx=cv.getContext('2d'),bgm=$('bgm'),hurtA=$('hurt');
+/* 道路幾何（由新背景圖實測）：消失點 (BG_VPX,BG_VPY)＝圖寬/圖高比例；BG_SLOPE＝路緣每往下 1px 向外擴張的像素 */
+var BG_VPX=.499,BG_VPY=.324,BG_SLOPE=.433,VX=0,ROADHW=0,PZ=.84;
+var W=0,H=0,VY=0,PY=0,LS=0,BR=941/1672,audioOn=true,st='START',T=0,dist=0,score=0,lives=3,dodged=0,attempts=0,sp=0,fatal=null,lastSec=-1,keyDir=0;
+var pu=0,tu=0,pst='run',hurtT=0,invT=0,bob=0,obs=[],parts=[],cardBlob=null,cardUrl='',lastCard=null;
+function resize(){var r=app.getBoundingClientRect(),d=Math.min(window.devicePixelRatio||1,2);W=r.width;H=r.height;cv.width=W*d;cv.height=H*d;cx.setTransform(d,0,0,d,0,0);
+var nh=W/H>BR?W/BR:H,nw=nh*BR;VY=(H-nh)/2+BG_VPY*nh;VX=W/2+(BG_VPX-.5)*nw;ROADHW=BG_SLOPE*(H-VY)}
+window.addEventListener('resize',resize);
+function halfW(y){return 1.1*(y-VY)}
+/* 統一跑道座標：道路邊界＝消失點到底部兩角；分隔線在道路寬 1/3、2/3；跑道中心 u=-1,0,1 */
+function proj(u,z){var y=VY+(H-VY)*z,hw=ROADHW*z;return{x:VX+u*(2/3)*hw,y:y,s:Math.max(.05,z)}}
+function fit(c,im,x,by,w,h){if(!im)return;var a=im.width/im.height,dw=w,dh=w/a;if(dh>h){dh=h;dw=h*a}c.drawImage(im,x-dw/2,by-dh,dw,dh)}
+// ---- 繪製 ----
+function drawBG(){var nw,nh;if(W/H>BR){nw=W;nh=W/BR}else{nh=H;nw=H*BR}
+if(IM.bg)cx.drawImage(IM.bg,(W-nw)/2,(H-nh)/2,nw,nh);else{var g=cx.createLinearGradient(0,0,0,H);g.addColorStop(0,'#150529');g.addColorStop(.35,'#3b1261');g.addColorStop(1,'#1c0e35');cx.fillStyle=g;cx.fillRect(0,0,W,H)}
+if(IM.ground){for(var y=Math.floor(VY+(H-VY)*.05);y<H;y+=3){var zz=(y-VY)/(H-VY),gw=ROADHW*zz*.985,v=Math.floor(((1/zz-1+dist)*300)%256);if(v<0)v+=256;cx.globalAlpha=Math.min(1,Math.max(0,(zz-.05)/.35))*.3;cx.drawImage(IM.ground,0,v,256,1,VX-gw,y,gw*2,3)}cx.globalAlpha=1}
+// 車道虛線（分隔線在 u=±0.5）
+var off=dist%1.4;cx.save();cx.shadowColor='#f472b6';[-.5,.5].forEach(function(u){for(var k=0;k<18;k++){var d0=k*1.4-off,d1=d0+.7;if(d1<=0)continue;if(d0<0)d0=0;
+var a=proj(u,1/(1+d0)),b=proj(u,1/(1+d1));cx.beginPath();cx.lineWidth=Math.max(1.5,8*a.s);cx.shadowBlur=0;cx.strokeStyle='rgba(244,114,182,'+(.35+.6*a.s)+')';cx.moveTo(a.x,a.y);cx.lineTo(b.x,b.y);cx.stroke()}});cx.restore()}
+function drawObs(o){cx.globalAlpha=Math.max(0,Math.min(1,(o.z-.07)/.12));var p=proj(o.u,o.z),s=150*p.s*(W/400);if(o.z>.5){cx.fillStyle='rgba(239,68,68,.28)';cx.beginPath();cx.ellipse(p.x,p.y-2,s*.4,s*.12,0,0,7);cx.fill()}
+var im=IM[o.a.k];if(im)fit(cx,im,p.x,p.y,s,s);else{cx.fillStyle=o.a.c;cx.beginPath();cx.arc(p.x,p.y-s/2,s*.4,0,7);cx.fill()}cx.globalAlpha=1}
+function drawPlayer(){if(invT>0&&Math.floor(invT*16)%2===0)return;var p=proj(pu,PZ),pw=W*.36,y=p.y,tilt=0,k='run';
+if(pst==='down')k='down';else if(hurtT>0){k='hurt';tilt=Math.sin(hurtT*40)*.08}else if(pst==='left'){k='left';tilt=-.05}else if(pst==='right'){k='right';tilt=.05}else y+=Math.sin(bob*14)*4;
+cx.fillStyle='rgba(0,0,0,.35)';cx.beginPath();cx.ellipse(p.x,p.y+2,pw*.4,pw*.1,0,0,7);cx.fill();
+cx.save();cx.translate(p.x,y);cx.rotate(tilt);fit(cx,IM[k]||IM.run,0,0,pw,pw);cx.restore()}
+function drawFx(){var hz=cx.createLinearGradient(0,VY-36,0,VY+.3*(H-VY));hz.addColorStop(0,'rgba(190,140,250,0)');hz.addColorStop(.12,'rgba(190,140,250,.3)');hz.addColorStop(1,'rgba(190,140,250,0)');cx.fillStyle=hz;cx.fillRect(0,VY-36,W,.3*(H-VY)+36);
+}
+function draw(){if(!W)return;cx.clearRect(0,0,W,H);drawBG();drawFx();var L=obs.slice().sort(function(a,b){return a.z-b.z});
+L.forEach(function(o){if(o.z<PZ)drawObs(o)});drawPlayer();L.forEach(function(o){if(o.z>=PZ)drawObs(o)});
+parts.forEach(function(p){cx.save();cx.translate(p.x,p.y);cx.rotate(p.r);cx.fillStyle='rgba(244,63,94,.75)';cx.fillRect(-p.s,-p.s*.6,p.s*2,p.s*1.2);cx.fillStyle='#fff';cx.font='bold 9px '+FF;cx.textAlign='center';cx.textBaseline='middle';cx.fillText(p.t,0,0);cx.restore()})}
+// ---- 邏輯 ----
+function hearts(){var h='';for(var i=0;i<3;i++)h+='<span style="display:inline-block;margin-right:3px;opacity:'+(i<lives?1:.2)+'">'+ICON.heart+'</span>';$('hearts').innerHTML=h}
+function update(dt){if(st!=='PLAY')return;T+=dt;var s2=Math.floor(T*10);if(s2!==score){score=s2;$('sc').textContent=score.toLocaleString()}var V=6+Math.min(T*.05,4.5);dist+=dt*V;bob+=dt;
+tu=Math.max(-.95,Math.min(.95,tu+keyDir*3*dt));var du=tu-pu;pu+=du*Math.min(1,dt*16);
+if(hurtT<=0){pst=du<-.04?'left':du>.04?'right':'run'}if(hurtT>0)hurtT-=dt;if(invT>0)invT-=dt;
+var sec=Math.floor(T);if(sec!==lastSec){lastSec=sec;$('tm').textContent=('0'+Math.floor(sec/60)).slice(-2)+':'+('0'+sec%60).slice(-2)}
+sp+=dt;if(sp>=Math.max(.45,1.3-T*.012)&&obs.length<9){sp=0;var ln=[-1,0,1].sort(function(){return Math.random()-.5}),nn=(T>15&&Math.random()<Math.min(.5,(T-15)*.015))?2:1;for(var qq=0;qq<nn;qq++)obs.push({a:AN[Math.floor(Math.random()*6)],u:ln[qq]+Math.random()*.2-.1,d:12.5,pd:12.5,z:.074,hit:0,cnt:0})}
+for(var i=obs.length-1;i>=0;i--){var o=obs[i];o.pd=o.d;o.d-=V*dt;o.z=1/(1+Math.max(o.d,-.5));
+if(!o.hit&&o.pd>=-.05&&o.d<=.38&&Math.abs(o.u-pu)<.6){o.hit=1;if(hit(o.a))return}
+if(!o.hit&&!o.cnt&&o.d<-.05){o.cnt=1;dodged++}
+if(o.d<-.5)obs.splice(i,1)}
+if(Math.random()<dt*2.4)parts.push({x:Math.random()*W,y:-20,vx:(Math.random()-.5)*50,vy:60+Math.random()*60,r:Math.random()*3,vr:(Math.random()-.5)*4,s:10+Math.random()*12,t:Math.random()>.5?'%':'12.12'});
+for(var j=parts.length-1;j>=0;j--){var p=parts[j];p.x+=p.vx*dt;p.y+=p.vy*dt;p.r+=p.vr*dt;if(p.y>H+20)parts.splice(j,1)}}
+function hit(a){if(invT>0)return false;lives--;hearts();if(audioOn){try{hurtA.currentTime=0;var pr=hurtA.play();if(pr&&pr.catch)pr.catch(function(){})}catch(e){}}
+if(lives>0){pst='hurt';hurtT=.28;invT=1;return false}fatal=a;over();return true}
+function show(id,on){$(id).classList[on?'add':'remove']('on')}
+function pauseG(){if(st!=='PLAY')return;st='PAUSE';show('pause',1);bgm.pause()}
+function resumeG(){if(st!=='PAUSE')return;st='PLAY';show('pause',0);if(audioOn)bgm.play().catch(function(){})}
+function startG(){if(st==='PLAY'||!ready)return;st='PLAY';T=0;dist=0;score=0;dodged=0;lives=3;sp=0;obs=[];parts=[];pu=tu=0;pst='run';hurtT=invT=0;lastSec=-1;fatal=null;
+$('sc').textContent='0';$('tm').textContent='00:00';hearts();var oc0=$('cardCanvas');if(oc0)oc0.parentNode.removeChild(oc0);show('start',0);show('over',0);show('pause',0);show('hud',1);
+try{hurtA.muted=true;var p=hurtA.play();if(p&&p.then)p.then(function(){hurtA.pause();hurtA.currentTime=0;hurtA.muted=false}).catch(function(){hurtA.muted=false});else hurtA.muted=false}catch(e){}
+if(audioOn){bgm.currentTime=0;bgm.play().catch(function(){})}track('game_start',{attempt:++attempts})}
+function over(){st='OVER';pst='down';bgm.pause();obs=[];var b=parseInt(store.get('wallet_best')||'0',10);if(score>b){b=score;store.set('wallet_best',String(score))}
+var sec=Math.floor(T),tr=tier(sec);track('game_over',{animal:fatal.k,persona:fatal.t,time_sec:sec,score:score,dodged:dodged,tier:tr[0]});
+setTimeout(function(){card(b);show('over',1)},450)}
+// ---- 戰績圖 ----
+function rr(g,x,y,w,h,r){g.beginPath();g.moveTo(x+r,y);g.arcTo(x+w,y,x+w,y+h,r);g.arcTo(x+w,y+h,x,y+h,r);g.arcTo(x,y+h,x,y,r);g.arcTo(x,y,x+w,y,r);g.closePath()}
+function wrap(g,t,mw){var o=[],l='';for(var i=0;i<t.length;i++){if(g.measureText(l+t[i]).width>mw){o.push(l);l=t[i]}else l+=t[i]}o.push(l);return o}
+function split2(t){var m=Math.ceil(t.length/2),b=-1,d=99;for(var i=0;i<t.length;i++)if('，、！？'.indexOf(t.charAt(i))>-1&&Math.abs(i+1-m)<d){d=Math.abs(i+1-m);b=i+1}if(b<1||b>=t.length)b=m;return[t.slice(0,b),t.slice(b)]}
+function card(best){
+var a=fatal,sec=T,qi=Math.floor(Math.random()*3),q=a.q[qi];shareKey=a.k+'-'+(qi+1);
+lastShare='我的荷包，敗給了'+a.n+'！撐了 '+sec.toFixed(1)+' 秒，你的荷包能撐多久？';
+function build(){try{build2()}catch(e){var im=$('cardImg');im.style.display='none';var oc=$('cardCanvas');if(oc)oc.parentNode.removeChild(oc);var d=document.createElement('div');d.id='cardCanvas';d.style.cssText='width:100%;max-width:300px;padding:22px 14px;border-radius:12px;background:#f6ecff;color:#3b0f6b;font-weight:900;border:2px solid #a855f7';d.innerHTML='<div style="font-size:15px">荷包保衛大作戰</div><div style="font-size:20px;margin:10px 0">我的荷包，敗給了'+a.n+'！</div><div style="font-size:30px;color:#d97706">'+sec.toFixed(1)+' 秒</div><div style="font-size:14px;margin-top:10px">'+q+'</div>';im.parentNode.insertBefore(d,im.nextSibling)}}
+function build2(){
+var c=document.createElement('canvas');c.width=1122;c.height=1402;var g=c.getContext('2d'),PU='#3b0f6b',F2='CardFont,'+FF;
+if(IM.cardbg)g.drawImage(IM.cardbg,0,0,1122,1402);else{g.fillStyle='#f6ecff';g.fillRect(0,0,1122,1402)}
+g.textBaseline='middle';g.textAlign='center';g.lineJoin='round';
+function tx(t,x,y,s,col){g.font='900 '+s+'px '+F2;g.fillStyle=col;g.fillText(t,x,y)}
+function ol(t,x,y,s,fill,st,lw){g.font='900 '+s+'px '+F2;g.lineWidth=lw;g.strokeStyle=st;g.strokeText(t,x,y);g.fillStyle=fill;g.fillText(t,x,y)}
+tx('荷包保衛大作戰',561,46,44,PU);g.fillStyle=PU;g.fillRect(292,45,53,4);g.fillRect(777,45,53,4);
+tx('與其被榨乾，',561,142,84,PU);tx('不如把優惠榨回來！',561,232,84,PU);
+var pg=g.createLinearGradient(0,290,0,586);pg.addColorStop(0,'#f3e9ff');pg.addColorStop(1,'#d8c3f6');rr(g,58,290,614,296,72);g.fillStyle=pg;g.fill();g.lineWidth=7;g.strokeStyle='#e9b949';g.stroke();
+tx('我撐了',366,332,38,'#5b1b8f');g.fillStyle='#8b5cc4';g.fillRect(185,331,85,3);g.fillRect(462,331,85,3);
+var ts=sec.toFixed(1);g.font='900 150px '+F2;var w1=g.measureText(ts).width;g.font='900 72px '+F2;var w2=g.measureText('秒').width,x0=366-(w1+w2+12)/2;
+var gd=g.createLinearGradient(0,385,0,525);gd.addColorStop(0,'#fff27a');gd.addColorStop(1,'#ffbf1f');
+ol(ts,x0+w1/2,452,150,gd,'#4b1583',24);ol('秒',x0+w1+12+w2/2,478,72,gd,'#4b1583',16);
+tx('本次得分 '+score.toLocaleString(),366,543,38,PU);
+fit(g,IM[a.k],825,960,610,610);fit(g,IM.down,372,1058,480,480);
+rr(g,240,1036,640,74,37);g.fillStyle='#5b1b8f';g.fill();tx('我的荷包剋星：'+a.n,560,1074,46,'#fff');
+g.beginPath();g.moveTo(255,1155);g.lineTo(326,1114);g.lineTo(345,1155);g.closePath();g.fillStyle='#fff6df';g.fill();g.lineWidth=4;g.strokeStyle=PU;g.stroke();
+rr(g,205,1135,683,146,70);g.fillStyle='#fff6df';g.fill();g.stroke();
+g.beginPath();g.moveTo(262,1137);g.lineTo(338,1137);g.lineTo(326,1118);g.closePath();g.fillStyle='#fff6df';g.fill();
+g.font='900 44px '+F2;var ls=g.measureText(q).width>560?split2(q):[q],n=ls.length;ls.forEach(function(s,i){tx(s,546,1208-(n-1)*28+i*56,44,PU)});
+tx('換你了，你能撐得比我久嗎？',561,1334,64,PU);tx('dradvice.cc/KP6ok',561,1386,24,'#6d28a8');
+/* 依 Banner 版型（.ai）：白底標籤寬 X、高 .8275X、下方兩角圓角 X/6，距左 .5X，貼齊上緣；Logo 置中、寬 .8226X */
+var TX=1122*171/1080,t0=TX*.5,th=TX*.8275,tr=TX/6;g.fillStyle='#fff';g.beginPath();g.moveTo(t0,0);g.lineTo(t0+TX,0);g.lineTo(t0+TX,th-tr);g.arcTo(t0+TX,th,t0+TX-tr,th,tr);g.lineTo(t0+tr,th);g.arcTo(t0,th,t0,th-tr,tr);g.closePath();g.fill();
+if(IM.logo){var lw=TX*.8226;g.drawImage(IM.logo,t0+TX*.0884,TX*.2035,lw,lw*IM.logo.height/IM.logo.width)}
+lastCard=c;cardBlob=null;cardUrl='';var im=$('cardImg'),oc=$('cardCanvas');if(oc)oc.parentNode.removeChild(oc);im.style.display='';
+try{cardUrl=c.toDataURL('image/png');im.src=cardUrl;c.toBlob(function(b){cardBlob=b})}
+catch(e){/* 素材跨網域或以 file:// 開啟時，canvas 會被瀏覽器標為不可匯出：改直接顯示 canvas，仍可看到戰績圖 */cardUrl='';cardBlob=null;c.id='cardCanvas';c.style.cssText='width:100%;max-width:300px;height:auto;aspect-ratio:1122/1402;display:block;border-radius:12px;border:2px solid rgba(168,85,247,.45)';im.style.display='none';im.parentNode.insertBefore(c,im.nextSibling)}}
+if(document.fonts&&document.fonts.load){document.fonts.load('900 40px CardFont','與其被榨乾0123456789').then(build,build)}else build()}
+var lastShare='',shareKey='horse-1';
+function toast(m){var t=$('toast');t.textContent=m;t.style.display='block';clearTimeout(toast.t);toast.t=setTimeout(function(){t.style.display='none'},2600)}
+function share(){track('share_click',{animal:fatal&&fatal.k});var su=GAME_URL+'share/'+shareKey+'.html',txt=lastShare+'\n'+su;
+function ok(m){track('share_success',{method:m})}
+if(cardBlob&&window.File&&navigator.canShare){try{var f=new File([cardBlob],'wallet-double12.png',{type:'image/png'});if(navigator.canShare({files:[f]})){navigator.share({files:[f],title:'荷包保衛大作戰',text:txt}).then(function(){ok('system_image')}).catch(function(){});return}}catch(e){}}
+if(navigator.share){navigator.share({title:'荷包保衛大作戰',text:lastShare,url:su}).then(function(){ok('system_link')}).catch(function(){});return}
+window.open('https://www.facebook.com/sharer/sharer.php?u='+encodeURIComponent(su),'_blank');ok('fb_sharer');toast('也可以長按戰績圖片，儲存後貼到限動或貼文')}
+function save(){track('download_click');if(!cardUrl){toast('請長按戰績圖片儲存');return}var a=document.createElement('a');a.href=cardUrl;a.download='荷包保衛戰績_'+score+'分.png';document.body.appendChild(a);a.click();document.body.removeChild(a);toast('若沒有反應，請長按戰績圖片儲存')}
+// ---- 事件綁定 ----
+function setU(x){var r=app.getBoundingClientRect();tu=Math.max(-.95,Math.min(.95,(x-r.left-VX)/(ROADHW*PZ*2/3)))}
+app.addEventListener('pointerdown',function(e){if(st==='PLAY'&&!(e.target.closest&&e.target.closest('button')))setU(e.clientX)});
+app.addEventListener('pointermove',function(e){if(st==='PLAY'&&(e.buttons||e.pointerType==='touch'))setU(e.clientX)});
+window.addEventListener('keydown',function(e){var k=e.key;if(k==='ArrowLeft'||k==='a'||k==='A')keyDir=-1;else if(k==='ArrowRight'||k==='d'||k==='D')keyDir=1;
+else if(k==='Escape'||k==='p'||k==='P'){st==='PLAY'?pauseG():resumeG()}else if((k===' '||k==='Enter')&&(st==='START'||st==='OVER')&&document.activeElement.tagName!=='BUTTON'){startG()}});
+window.addEventListener('keyup',function(e){var k=e.key;if((k==='ArrowLeft'||k==='a'||k==='A')&&keyDir<0||(k==='ArrowRight'||k==='d'||k==='D')&&keyDir>0)keyDir=0});
+$('bStart').onclick=startG;$('bAgain').onclick=function(){track('replay');startG()};$('bPause').onclick=pauseG;$('bResume').onclick=resumeG;$('share').onclick=share;$('bSave').onclick=save;
+$('cta').href=MALL;$('cta').addEventListener('click',function(){track('cta_click',{placement:'game_over',animal:fatal&&fatal.k})});
+$('terms').addEventListener('click',function(){track('terms_click')});
+$('bAud').onclick=function(){audioOn=!audioOn;this.innerHTML=audioOn?ICON.snd:ICON.mute;if(!audioOn)bgm.pause();else if(st==='PLAY')bgm.play().catch(function(){})};
+document.addEventListener('visibilitychange',function(){if(document.hidden)pauseG()});
+if(/FBAN|FBAV|FB_IAB|Line\/|Instagram/i.test(navigator.userAgent))$('iab').style.display='block';
+// ---- 啟動 ----
+var last=0;function loop(t){var dt=Math.min((t-(last||t))/1000,.1);last=t;update(dt);draw();requestAnimationFrame(loop)}
+function go(){if(ready)return;ready=true;try{document.fonts.load('900 20px CardFont','荷')}catch(e){}$('bStart').disabled=false;$('bStart').textContent='START 保衛荷包！'}
+$('bAud').innerHTML=ICON.snd;$('bPause').innerHTML=ICON.pause;hearts();resize();loadAll(go);setTimeout(go,12000);requestAnimationFrame(loop);track('game_view',{from:(location.search.match(/from=([\w-]+)/)||[])[1]||''});
+})();
+</script></body></html>
