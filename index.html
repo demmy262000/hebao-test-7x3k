@@ -55,8 +55,9 @@ canvas{display:block;width:100%;height:100%}
 <div><div id="iab">右上角選單 → 用瀏覽器開啟，體驗更順</div><div class="tip">左右滑動螢幕，或按鍵盤方向鍵閃避</div>
 <button id="bStart" class="btn pri" disabled>載入中…</button><a class="lk" id="terms" href="https://www.dradvice.com/terms" target="_blank" rel="noopener">活動辦法與條款</a></div></div>
 <div id="pause" class="ov"><h2 style="color:#d8b4fe">遊戲暫停中</h2><p style="color:#ccc;font-size:14px">荷包君正在路邊喘口氣⋯⋯</p><button id="bResume" class="btn pri" style="padding:12px 34px">繼續奔跑</button></div>
-<div id="over" class="ov"><h2>荷包君陣亡結算</h2><img id="cardImg" alt="戰績圖（長按可儲存）"><div id="hintSave" style="display:none;font-size:12px;color:#c4b5fd;margin-top:6px">長按上方戰績圖片即可儲存</div>
+<div id="over" class="ov"><h2>荷包君陣亡結算</h2><img id="cardImg" alt="戰績圖（長按可儲存）"><div id="hintSave" style="display:none;font-size:12px;color:#c4b5fd;margin-top:6px;text-align:center;line-height:1.5">此瀏覽器無法直接下載圖片：可直接截圖，或按下方「用瀏覽器開啟」</div>
 <button id="share" class="btn">分享給朋友，看誰撐得久</button>
+<button id="bExt" class="btn sec" style="display:none;width:100%;max-width:340px;margin-top:8px;font-size:14px">用瀏覽器開啟，即可儲存圖片</button>
 <a id="cta" class="btn" target="_blank" rel="noopener">與其被榨乾，不如把優惠榨回來！</a>
 <div class="row"><button id="bSave" class="btn sec">儲存圖片</button><button id="bAgain" class="btn sec">再玩一次</button></div></div>
 <div id="toast"></div></div>
@@ -147,7 +148,7 @@ function rr(g,x,y,w,h,r){g.beginPath();g.moveTo(x+r,y);g.arcTo(x+w,y,x+w,y+h,r);
 function wrap(g,t,mw){var o=[],l='';for(var i=0;i<t.length;i++){if(g.measureText(l+t[i]).width>mw){o.push(l);l=t[i]}else l+=t[i]}o.push(l);return o}
 function split2(t){var m=Math.ceil(t.length/2),b=-1,d=99;for(var i=0;i<t.length;i++)if('，、！？'.indexOf(t.charAt(i))>-1&&Math.abs(i+1-m)<d){d=Math.abs(i+1-m);b=i+1}if(b<1||b>=t.length)b=m;return[t.slice(0,b),t.slice(b)]}
 function card(best){
-var a=fatal,sec=T,qi=Math.floor(Math.random()*3),q=a.q[qi];shareKey=a.k+'-'+(qi+1);
+var a=fatal,sec=T,qi=forceQ>=0?forceQ:Math.floor(Math.random()*3),q=a.q[qi];forceQ=-1;shareKey=a.k+'-'+(qi+1);
 lastShare='我的荷包，敗給了'+a.n+'！撐了 '+sec.toFixed(1)+' 秒，你的荷包能撐多久？';
 function build(){try{build2()}catch(e){var im=$('cardImg');im.style.display='none';var oc=$('cardCanvas');if(oc)oc.parentNode.removeChild(oc);var d=document.createElement('div');d.id='cardCanvas';d.style.cssText='width:100%;max-width:300px;padding:22px 14px;border-radius:12px;background:#f6ecff;color:#3b0f6b;font-weight:900;border:2px solid #a855f7';d.innerHTML='<div style="font-size:15px">荷包保衛大作戰</div><div style="font-size:20px;margin:10px 0">我的荷包，敗給了'+a.n+'！</div><div style="font-size:30px;color:#d97706">'+sec.toFixed(1)+' 秒</div><div style="font-size:14px;margin-top:10px">'+q+'</div>';im.parentNode.insertBefore(d,im.nextSibling)}}
 function build2(){
@@ -178,7 +179,7 @@ lastCard=c;cardBlob=null;cardUrl='';var im=$('cardImg'),oc=$('cardCanvas');if(oc
 try{cardUrl=c.toDataURL('image/png');im.src=cardUrl;c.toBlob(function(b){cardBlob=b})}
 catch(e){/* 素材跨網域或以 file:// 開啟時，canvas 會被瀏覽器標為不可匯出：改直接顯示 canvas，仍可看到戰績圖 */cardUrl='';cardBlob=null;c.id='cardCanvas';c.style.cssText='width:100%;max-width:300px;height:auto;aspect-ratio:1122/1402;display:block;border-radius:12px;border:2px solid rgba(168,85,247,.45)';im.style.display='none';im.parentNode.insertBefore(c,im.nextSibling)}}
 if(document.fonts&&document.fonts.load){document.fonts.load('900 40px CardFont','與其被榨乾0123456789').then(build,build)}else build()}
-var lastShare='',shareKey='horse-1';
+var lastShare='',shareKey='horse-1',forceQ=-1;
 function toast(m){var t=$('toast');t.textContent=m;t.style.display='block';clearTimeout(toast.t);toast.t=setTimeout(function(){t.style.display='none'},2600)}
 function share(){track('share_click',{animal:fatal&&fatal.k});var su=GAME_URL+shareKey+'.html',txt=lastShare+'\n'+su;
 function ok(m){track('share_success',{method:m})}
@@ -186,7 +187,13 @@ if(cardBlob&&window.File&&navigator.canShare){try{var f=new File([cardBlob],'wal
 if(navigator.share){navigator.share({title:'荷包保衛大作戰',text:lastShare,url:su}).then(function(){ok('system_link')}).catch(function(){});return}
 if(isLine){window.open('https://line.me/R/msg/text/?'+encodeURIComponent(txt),'_blank');ok('line_msg');return}
 window.open('https://www.facebook.com/sharer/sharer.php?u='+encodeURIComponent(su),'_blank');ok('fb_sharer');toast('也可以長按戰績圖片，儲存後貼到限動或貼文')}
-function save(){track('download_click');if(IAB||!cardUrl){toast('請長按上方戰績圖片，選擇「儲存圖片」');return}var a=document.createElement('a');a.href=cardUrl;a.download='荷包保衛戰績_'+score+'分.png';document.body.appendChild(a);a.click();document.body.removeChild(a)}
+function save(){track('download_click');if(IAB||!cardUrl){toast('此瀏覽器無法直接下載：請截圖，或按「用瀏覽器開啟」');return}var a=document.createElement('a');a.href=cardUrl;a.download='荷包保衛戰績_'+score+'分.png';document.body.appendChild(a);a.click();document.body.removeChild(a)}
+/* LINE／FB／IG 內建瀏覽器不能下載：把結果帶到外部瀏覽器（?r=動物-句號&t=秒數 會直接顯示同一張戰績圖） */
+function openExternal(){track('open_external');var u=GAME_URL+'?r='+shareKey+'&t='+T.toFixed(1);
+if(/Android/i.test(UA)){location.href='intent://'+u.replace(/^https?:\/\//,'')+'#Intent;scheme=https;action=android.intent.action.VIEW;end';setTimeout(function(){if(!document.hidden)location.href=u+'&openExternalBrowser=1'},1500)}
+else location.href=u+'&openExternalBrowser=1'}
+function resultFromUrl(){var m=location.search.match(/[?&]r=(\w+)-(\d)/),t=location.search.match(/[?&]t=([\d.]+)/);if(!m||!t)return;var a=null;AN.forEach(function(x){if(x.k===m[1])a=x});if(!a)return;
+fatal=a;T=parseFloat(t[1])||0;score=Math.floor(T*10);st='OVER';forceQ=Math.max(0,Math.min(2,parseInt(m[2],10)-1));show('start',0);card(0);show('over',1);track('result_view',{animal:a.k})}
 // ---- 事件綁定 ----
 function setU(x){var r=app.getBoundingClientRect();tu=Math.max(-.95,Math.min(.95,(x-r.left-VX)/(ROADHW*PZ*2/3)))}
 app.addEventListener('pointerdown',function(e){if(st==='PLAY'&&!(e.target.closest&&e.target.closest('button')))setU(e.clientX)});
@@ -199,10 +206,11 @@ $('cta').href=MALL;$('cta').addEventListener('click',function(){track('cta_click
 $('terms').addEventListener('click',function(){track('terms_click')});
 $('bAud').onclick=function(){audioOn=!audioOn;this.innerHTML=audioOn?ICON.snd:ICON.mute;if(!audioOn)bgm.pause();else if(st==='PLAY')bgm.play().catch(function(){})};
 document.addEventListener('visibilitychange',function(){if(document.hidden)pauseG()});
-if(IAB){$('iab').style.display='block';$('hintSave').style.display='block'}
+if(IAB){$('iab').style.display='block';$('hintSave').style.display='block';$('bExt').style.display='flex'}
+$('bExt').onclick=openExternal;
 // ---- 啟動 ----
 var last=0;function loop(t){var dt=Math.min((t-(last||t))/1000,.1);last=t;update(dt);draw();requestAnimationFrame(loop)}
-function go(){if(ready)return;ready=true;try{document.fonts.load('900 20px CardFont','荷')}catch(e){}$('bStart').disabled=false;$('bStart').textContent='START 保衛荷包！'}
+function go(){if(ready)return;ready=true;setTimeout(resultFromUrl,0);try{document.fonts.load('900 20px CardFont','荷')}catch(e){}$('bStart').disabled=false;$('bStart').textContent='START 保衛荷包！'}
 $('bAud').innerHTML=ICON.snd;$('bPause').innerHTML=ICON.pause;hearts();resize();loadAll(go);setTimeout(go,12000);requestAnimationFrame(loop);track('game_view',{from:(location.search.match(/from=([\w-]+)/)||[])[1]||''});
 })();
 </script></body></html>
