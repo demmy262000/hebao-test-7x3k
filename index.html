@@ -8,11 +8,11 @@
 <meta property="og:title" content="荷包保衛大作戰">
 <meta property="og:description" content="優惠馬、紅利雞、折價犬全員來襲！帶荷包君閃過 6 隻購物魔物，看看你會被誰榨乾？">
 <meta property="og:url" content="https://demmy262000.github.io/hebao-test-7x3k/">
-<meta property="og:image" content="https://demmy262000.github.io/hebao-test-7x3k/assets/og.jpg">
+<meta property="og:image" content="https://demmy262000.github.io/hebao-test-7x3k/og.jpg">
 <meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">
 <!-- TODO(IT)：GTM 容器碼貼在這裡（遊戲會自動把事件推到 dataLayer） -->
 <style>
-@font-face{font-family:CardFont;src:url(assets/card-font.woff) format('woff');font-weight:900;font-display:block}
+@font-face{font-family:CardFont;src:url(card-font.woff) format('woff');font-weight:900;font-display:block}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;-webkit-user-select:none;user-select:none}
 html,body{margin:0;height:100%;overflow:hidden;background:#0b0217;color:#fff;font-family:-apple-system,BlinkMacSystemFont,"PingFang TC","Noto Sans TC","Microsoft JhengHei",sans-serif}
 body{height:100vh;height:100dvh;display:flex;justify-content:center}
@@ -51,7 +51,7 @@ canvas{display:block;width:100%;height:100%}
 <canvas id="cv"></canvas>
 <div id="hud"><div id="hearts" style="font-size:22px"></div><div class="c"><small>存活時間</small><b id="tm" style="color:#fcd34d">00:00</b></div>
 <div style="display:flex;align-items:center"><div style="text-align:right"><small>累積得分</small><b id="sc">0</b></div><button class="ib" id="bAud" aria-label="音效"></button><button class="ib" id="bPause" aria-label="暫停"></button></div></div>
-<div id="start" class="ov on"><img src="assets/cover.jpg" alt="">
+<div id="start" class="ov on"><img src="cover.jpg" alt="">
 <div><div id="iab">右上角選單 → 用瀏覽器開啟，體驗更順</div><div class="tip">左右滑動螢幕，或按鍵盤方向鍵閃避</div>
 <button id="bStart" class="btn pri" disabled>載入中…</button><a class="lk" id="terms" href="https://www.dradvice.com/terms" target="_blank" rel="noopener">活動辦法與條款</a></div></div>
 <div id="pause" class="ov"><h2 style="color:#d8b4fe">遊戲暫停中</h2><p style="color:#ccc;font-size:14px">荷包君正在路邊喘口氣⋯⋯</p><button id="bResume" class="btn pri" style="padding:12px 34px">繼續奔跑</button></div>
@@ -61,7 +61,7 @@ canvas{display:block;width:100%;height:100%}
 <div class="row"><button id="bSave" class="btn sec">儲存圖片</button><button id="bAgain" class="btn sec">再玩一次</button></div></div>
 <div id="toast"></div></div>
 <div id="rot">請將手機轉為直向遊玩</div>
-<audio id="bgm" src="assets/bgm.mp3" loop preload="auto"></audio><audio id="hurt" src="assets/hurt.mp3" preload="auto"></audio>
+<audio id="bgm" src="bgm.mp3" loop preload="auto"></audio><audio id="hurt" src="hurt.mp3" preload="auto"></audio>
 <script>
 (function(){'use strict';
 var GAME_URL='https://demmy262000.github.io/hebao-test-7x3k/'; // TODO(IT)：遊戲上線網址（分享用）
@@ -84,7 +84,7 @@ var F={horse:'horse',chicken:'chicken',raccoon:'raccoon',dog:'dog',bee:'bee',fis
 var IM={},ready=false;
 function loadAll(done){var ks=Object.keys(F),n=0;function fin(){if(++n===ks.length)done()}
 ks.forEach(function(k){var f=F[k],i=new Image(),png=!/\./.test(f);i.onload=function(){IM[k]=i;fin()};
-i.onerror=function(){if(png&&i.src.indexOf('.webp')>-1){i.src='assets/'+f+'.png'}else fin()};i.src='assets/'+f+(png?'.webp':'')})}
+i.onerror=function(){if(png&&i.src.indexOf('.webp')>-1){i.src=''+f+'.png'}else fin()};i.src=''+f+(png?'.webp':'')})}
 // ---- 狀態 ----
 var app=$('app'),cv=$('cv'),cx=cv.getContext('2d'),bgm=$('bgm'),hurtA=$('hurt');
 /* 道路幾何（由新背景圖實測）：消失點 (BG_VPX,BG_VPY)＝圖寬/圖高比例；BG_SLOPE＝路緣每往下 1px 向外擴張的像素 */
@@ -179,7 +179,7 @@ catch(e){/* 素材跨網域或以 file:// 開啟時，canvas 會被瀏覽器標�
 if(document.fonts&&document.fonts.load){document.fonts.load('900 40px CardFont','與其被榨乾0123456789').then(build,build)}else build()}
 var lastShare='',shareKey='horse-1';
 function toast(m){var t=$('toast');t.textContent=m;t.style.display='block';clearTimeout(toast.t);toast.t=setTimeout(function(){t.style.display='none'},2600)}
-function share(){track('share_click',{animal:fatal&&fatal.k});var su=GAME_URL+'share/'+shareKey+'.html',txt=lastShare+'\n'+su;
+function share(){track('share_click',{animal:fatal&&fatal.k});var su=GAME_URL+shareKey+'.html',txt=lastShare+'\n'+su;
 function ok(m){track('share_success',{method:m})}
 if(cardBlob&&window.File&&navigator.canShare){try{var f=new File([cardBlob],'wallet-double12.png',{type:'image/png'});if(navigator.canShare({files:[f]})){navigator.share({files:[f],title:'荷包保衛大作戰',text:txt}).then(function(){ok('system_image')}).catch(function(){});return}}catch(e){}}
 if(navigator.share){navigator.share({title:'荷包保衛大作戰',text:lastShare,url:su}).then(function(){ok('system_link')}).catch(function(){});return}
