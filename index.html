@@ -42,7 +42,7 @@ canvas{display:block;width:100%;height:100%}
 #cta{width:100%;max-width:340px;margin-top:8px;font-size:16px;background:linear-gradient(90deg,#f43f5e,#f59e0b)}
 #share{width:100%;max-width:340px;margin-top:10px;font-size:18px;background:linear-gradient(90deg,#2563eb,#06b6d4)}
 .sec{background:rgba(255,255,255,.14)}
-#toast{position:absolute;left:50%;bottom:90px;transform:translateX(-50%);background:rgba(0,0,0,.85);padding:10px 16px;border-radius:10px;font-size:13px;z-index:50;display:none;max-width:86%;text-align:center}
+#toast{position:absolute;left:50%;top:72px;transform:translateX(-50%);background:rgba(0,0,0,.85);padding:10px 16px;border-radius:10px;font-size:13px;z-index:50;display:none;max-width:86%;text-align:center}
 #rot{display:none;position:fixed;inset:0;z-index:99;background:#0b0217;align-items:center;justify-content:center;font-size:18px}
 @media (orientation:landscape) and (max-height:520px){#rot{display:flex}}
 </style></head>
@@ -55,7 +55,7 @@ canvas{display:block;width:100%;height:100%}
 <div><div id="iab">右上角選單 → 用瀏覽器開啟，體驗更順</div><div class="tip">左右滑動螢幕，或按鍵盤方向鍵閃避</div>
 <button id="bStart" class="btn pri" disabled>載入中…</button><a class="lk" id="terms" href="https://www.dradvice.com/terms" target="_blank" rel="noopener">活動辦法與條款</a></div></div>
 <div id="pause" class="ov"><h2 style="color:#d8b4fe">遊戲暫停中</h2><p style="color:#ccc;font-size:14px">荷包君正在路邊喘口氣⋯⋯</p><button id="bResume" class="btn pri" style="padding:12px 34px">繼續奔跑</button></div>
-<div id="over" class="ov"><h2>荷包君陣亡結算</h2><img id="cardImg" alt="戰績圖（長按可儲存）">
+<div id="over" class="ov"><h2>荷包君陣亡結算</h2><img id="cardImg" alt="戰績圖（長按可儲存）"><div id="hintSave" style="display:none;font-size:12px;color:#c4b5fd;margin-top:6px">長按上方戰績圖片即可儲存</div>
 <button id="share" class="btn">分享給朋友，看誰撐得久</button>
 <a id="cta" class="btn" target="_blank" rel="noopener">與其被榨乾，不如把優惠榨回來！</a>
 <div class="row"><button id="bSave" class="btn sec">儲存圖片</button><button id="bAgain" class="btn sec">再玩一次</button></div></div>
@@ -67,6 +67,7 @@ canvas{display:block;width:100%;height:100%}
 var GAME_URL='https://demmy262000.github.io/hebao-test-7x3k/'; // TODO(IT)：遊戲上線網址（分享用）
 var MALL='https://dradvice.cc/KP6ok',CTA='與其被榨乾，不如把優惠榨回來！',FF='"PingFang TC","Noto Sans TC","Microsoft JhengHei",sans-serif';
 var $=function(i){return document.getElementById(i)};
+var UA=navigator.userAgent,isLine=/Line\//i.test(UA),IAB=isLine||/FBAN|FBAV|FB_IAB|Instagram/i.test(UA);
 // ---- 追蹤：推送到 dataLayer（GTM / GA4 通用），事件清單見交付說明 ----
 function track(n,p){try{var o={event:n,game_name:'wallet_double12'};for(var k in p)o[k]=p[k];(window.dataLayer=window.dataLayer||[]).push(o)}catch(e){}}
 var store={get:function(k){try{return localStorage.getItem(k)}catch(e){return null}},set:function(k,v){try{localStorage.setItem(k,v)}catch(e){}}};
@@ -183,8 +184,9 @@ function share(){track('share_click',{animal:fatal&&fatal.k});var su=GAME_URL+sh
 function ok(m){track('share_success',{method:m})}
 if(cardBlob&&window.File&&navigator.canShare){try{var f=new File([cardBlob],'wallet-double12.png',{type:'image/png'});if(navigator.canShare({files:[f]})){navigator.share({files:[f],title:'荷包保衛大作戰',text:txt}).then(function(){ok('system_image')}).catch(function(){});return}}catch(e){}}
 if(navigator.share){navigator.share({title:'荷包保衛大作戰',text:lastShare,url:su}).then(function(){ok('system_link')}).catch(function(){});return}
+if(isLine){window.open('https://line.me/R/msg/text/?'+encodeURIComponent(txt),'_blank');ok('line_msg');return}
 window.open('https://www.facebook.com/sharer/sharer.php?u='+encodeURIComponent(su),'_blank');ok('fb_sharer');toast('也可以長按戰績圖片，儲存後貼到限動或貼文')}
-function save(){track('download_click');if(!cardUrl){toast('請長按戰績圖片儲存');return}var a=document.createElement('a');a.href=cardUrl;a.download='荷包保衛戰績_'+score+'分.png';document.body.appendChild(a);a.click();document.body.removeChild(a);toast('若沒有反應，請長按戰績圖片儲存')}
+function save(){track('download_click');if(IAB||!cardUrl){toast('請長按上方戰績圖片，選擇「儲存圖片」');return}var a=document.createElement('a');a.href=cardUrl;a.download='荷包保衛戰績_'+score+'分.png';document.body.appendChild(a);a.click();document.body.removeChild(a)}
 // ---- 事件綁定 ----
 function setU(x){var r=app.getBoundingClientRect();tu=Math.max(-.95,Math.min(.95,(x-r.left-VX)/(ROADHW*PZ*2/3)))}
 app.addEventListener('pointerdown',function(e){if(st==='PLAY'&&!(e.target.closest&&e.target.closest('button')))setU(e.clientX)});
@@ -197,7 +199,7 @@ $('cta').href=MALL;$('cta').addEventListener('click',function(){track('cta_click
 $('terms').addEventListener('click',function(){track('terms_click')});
 $('bAud').onclick=function(){audioOn=!audioOn;this.innerHTML=audioOn?ICON.snd:ICON.mute;if(!audioOn)bgm.pause();else if(st==='PLAY')bgm.play().catch(function(){})};
 document.addEventListener('visibilitychange',function(){if(document.hidden)pauseG()});
-if(/FBAN|FBAV|FB_IAB|Line\/|Instagram/i.test(navigator.userAgent))$('iab').style.display='block';
+if(IAB){$('iab').style.display='block';$('hintSave').style.display='block'}
 // ---- 啟動 ----
 var last=0;function loop(t){var dt=Math.min((t-(last||t))/1000,.1);last=t;update(dt);draw();requestAnimationFrame(loop)}
 function go(){if(ready)return;ready=true;try{document.fonts.load('900 20px CardFont','荷')}catch(e){}$('bStart').disabled=false;$('bStart').textContent='START 保衛荷包！'}
